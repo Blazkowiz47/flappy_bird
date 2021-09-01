@@ -20,7 +20,7 @@ class Pipe:
         self.height = random.randrange(50, 450)
         self.top = self.height - self.PIPE_TOP.get_height()
         # sets  random gap between the pipes
-        self.bottom = self.height + random.randrange(170, 350)
+        self.bottom = self.height + 300
 
     def move(self):
         self.x -= self.VEL

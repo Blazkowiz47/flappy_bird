@@ -1,3 +1,5 @@
+import pickle
+
 import neat
 import os
 import random
@@ -30,11 +32,10 @@ def draw_window(win, birds, pipes, base, score, gen):
 
 
 def eval_gen(genomes, config):
-    global win
+    global win, gen
     birds = []
     ge = []
     nets = []
-    global gen
     gen += 1
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -74,8 +75,7 @@ def eval_gen(genomes, config):
             ge[x].fitness += 0.1
 
             output = nets[birds.index(bird)].activate(
-                (bird.y, abs(bird.y - pipes[pipe_ind].top), abs(bird.y - pipes[pipe_ind].bottom),
-                 abs(bird.x - pipes[pipe_ind].x)))
+                (bird.y, abs(bird.y - pipes[pipe_ind].height), abs(bird.y - pipes[pipe_ind].bottom),))
 
             if output[0] > 0.5:
                 bird.jump()
@@ -106,7 +106,7 @@ def eval_gen(genomes, config):
             score += 1
             for g in ge:
                 g.fitness += 5
-            pipes.append(Pipe(random.randrange(450, 750)))
+            pipes.append(Pipe(random.randrange(600, 750)))
 
         for r in rem:
             pipes.remove(r)
@@ -116,6 +116,10 @@ def eval_gen(genomes, config):
                 birds.pop(x)
                 nets.pop(x)
                 ge.pop(x)
+
+        if score > 50:
+            pickle.dump(nets[0], open("savedBots/{}".format(gen)))
+            break
         # move background image
         base.move()
         draw_window(win, birds, pipes, base, score, gen)
@@ -127,8 +131,13 @@ def run(config_path):
     p = neat.Population(config)
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
+
     winner = p.run(eval_gen, 50)
     print('\nBest genome:\n{!s}'.format(winner))
+
+    # Show output of the most fit genome against training data.
+    print('\nOutput:')
+    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 
 
 if __name__ == "__main__":

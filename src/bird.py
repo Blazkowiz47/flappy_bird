@@ -22,6 +22,12 @@ class Bird:
         self.tick_count = 0
         self.height = self.y
 
+    def get_vel(self):
+        vel_ou = self.vel + 3 * self.tick_count
+        if vel_ou > 16:
+            vel_ou = 16
+        return 16
+
     def move(self):
         self.tick_count += 1
         # Calculate distance travelled (d) in one tick count
